@@ -19,9 +19,45 @@ class _RandomWordsState extends State<RandomWords> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Startup name generator'),
+          actions: [
+            IconButton(
+              onPressed: _pushSaved,
+              icon: const Icon(Icons.list),
+              tooltip: 'Saved suggestions',
+            ),
+          ],
         ),
         body: _buildSuggestions(),
       );
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) {
+          final tiles = _saved.map((wordPair) => ListTile(
+                title: Text(
+                  wordPair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              ));
+          final divided = tiles.isNotEmpty
+              ? ListTile.divideTiles(
+                  tiles: tiles,
+                  context: context,
+                ).toList()
+              : <Widget>[];
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Saved suggestions'),
+            ),
+            body: ListView(
+              children: divided,
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildSuggestions() => ListView.builder(
         padding: const EdgeInsets.all(16),
