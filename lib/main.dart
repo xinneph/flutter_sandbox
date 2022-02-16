@@ -24,7 +24,7 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final _messages = <ChatMessage>[];
   final _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -52,6 +52,14 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    for (final message in _messages) {
+      message.animationController.dispose();
+    }
+    super.dispose();
   }
 
   Widget _buildTextComposer(BuildContext context) {
@@ -86,10 +94,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String string) {
     _textController.clear();
-    final message = ChatMessage(text: string);
+    final message = ChatMessage(
+      text: string,
+      animationController: AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 900),
+      ),
+    );
     setState(() {
       _messages.insert(0, message);
     });
     _focusNode.requestFocus();
+    message.animationController.forward();
   }
 }
