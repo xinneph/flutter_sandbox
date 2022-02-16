@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sandbox_flutter/chat_message.dart';
 
 main() => runApp(const FriendlyChatApp());
 
@@ -24,7 +25,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _messages = <ChatMessage>[];
   final _textController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +35,29 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('Friendly chat'),
       ),
-      body: _buildTextComposer(),
+      body: Column(
+        children: [
+          Flexible(
+            child: ListView.builder(
+              itemBuilder: (_, int index) {
+                return _messages[index];
+              },
+              itemCount: _messages.length,
+              reverse: true,
+              padding: const EdgeInsets.all(8),
+            ),
+          ),
+          const Divider(height: 1),
+          _buildTextComposer(context),
+        ],
+      ),
     );
   }
 
-  Widget _buildTextComposer() {
+  Widget _buildTextComposer(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor),
       child: Row(
         children: [
           Flexible(
@@ -47,6 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
               onSubmitted: _handleSubmitted,
               decoration:
                   const InputDecoration.collapsed(hintText: 'Send a message'),
+              focusNode: _focusNode,
             ),
           ),
           IconTheme(
@@ -66,5 +86,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String string) {
     _textController.clear();
+    final message = ChatMessage(text: string);
+    setState(() {
+      _messages.insert(0, message);
+    });
+    _focusNode.requestFocus();
   }
 }
