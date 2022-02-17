@@ -28,6 +28,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final _messages = <ChatMessage>[];
   final _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  var _isComposing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +76,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               decoration:
                   const InputDecoration.collapsed(hintText: 'Send a message'),
               focusNode: _focusNode,
+              onChanged: (value) => setState(() {
+                _isComposing = value.isNotEmpty;
+              }),
             ),
           ),
           IconTheme(
@@ -82,7 +86,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
-                onPressed: () => _handleSubmitted(_textController.text),
+                onPressed: _isComposing
+                    ? () => _handleSubmitted(_textController.text)
+                    : null,
                 icon: const Icon(Icons.send),
               ),
             ),
@@ -103,6 +109,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
     setState(() {
       _messages.insert(0, message);
+      _isComposing = false;
     });
     _focusNode.requestFocus();
     message.animationController.forward();
